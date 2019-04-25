@@ -1,0 +1,39 @@
+x_train =[[1.,2.], [2.,3.], [3.,1.], [4.,3.], [5.,3.], [6.,2.]]
+y_train =[[0.],[0.],[1.],[1.],[1.]]
+x_test =[[5.,2.]]  
+y_test =[[1.]]
+
+import tensorflow.contrib.eager as tfe #tensorflow의 eager 모드 실행을 위한 라이브러리 임포트 
+tf.enable_eager_execution() #tensorflow를 eager 모드로 시행하기위해 eager_execution 먼저 시행
+dataset=tf.data.Dataset.form_tensor_slices((x_train,y_train)).batch(len(x_train))
+#tf data를 통해서 원하는 x값과 y값을 실제 x의 길이 만큼 배치로 학습 (x_train=6)
+
+w=tf.Variable(tr.zero([2,1]), name='weight') #원하는 모델 선언 할 수 있음 행렬 연산을 위해 2행 1열로 설정
+b=tf.Variable(tf.zero([1]), name='bias' ) #b의 값은 y값이 1개 이므로 1로 설정
+
+def logistic_regression(features):
+    hypothesis=tf.div(1.,1.+tf.exp(tf.matmul(features,w)+b)) # tf.matmul(features,w)+b 이라는 linear한 값을 이 값을 시그모이드함수로 설정
+    return hypothesis 
+def loss_fn(features, labels): 
+    hypothesis =logistic_regrassion(teatures)  
+    cost=-tf.reduce_mean(lavels*tf.log(loss_fn(hypothesis)+(1-labels)*tf.log(1-hypothesis))  
+    return cost  #label값 과 hypothesis값을 통해 cost값 구하기
+def grad(hypothesis, features, labels): #학습을 위한 함수들
+    with tf.GRadientTape() as tape:
+        loss_value = loss_fn(hypothesis,labels) # hypothesis와 labels이 나오면 가설값과 실제값을 비교한 loss 값을 구할수 있다
+        return tape.gradient(loss_value,[w,b]) #gradient를 통해 실제 모델 값을 바꿔감
+optimizer = tf.train.GradientDescentOptimizer(learning_rate=0.01) #GradientDescentOptimizer를 통해 learning_rate=0.01으로 optimizer선언
+
+for step in range(EPOCHS): #실제 학습을 위한 함수 호출, 함수를 EPOCHS만큼 돌림
+    for features, labels in tfe.Iterator(dataset): #데이터 값을 토대로 Iterator로 돌려서 실제 features, labels 값을 넣으면서 모델 형성
+        grads= grad(logistic_regression(features), features, labels) #x값과 y값이 나오게 된 것을 실제 가설을 넣어 grads값을 생성
+        optimizer.apply_gradients(grads_and_vars=zip(grads,[w,b])) #grads값을 optimizer을 통해 GradientDescent로 minimize( w, b업데이트)
+        if step %100==0: #100번 마다 출력
+            print("Iter: {}, Loss:{:.4f}". format(step, loss_fn(logistic_regression(features),labels)))
+            #Iter와 Loss값의 감소 출력을 위한 출력
+def accuracy_fn(hypothesis, labels): #가설과 함수 비교를 위한 함수 선언
+    predicted= tf.cast(hypothesis >0.5, dtype=tf.float32) #x값 대입
+    accuracy= tf.reduce_mean(tf.cast(tf.equl(predicted, labels),dtype=tf.int32)) #출력값과 실제값 비교 후 accuracy로 출력
+    return accuracy
+    
+test_acc =accuracy_fn(logistic_regression(x_test),y_test)
