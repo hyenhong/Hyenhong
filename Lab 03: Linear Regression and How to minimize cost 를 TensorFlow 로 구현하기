@@ -1,0 +1,27 @@
+import tensorflow as tf # 텐서플로우 실행 
+import numpy as np      # numpy를 실행
+
+tf.enable_eager_execution()# TensorFlow 함수는 작업을 즉시 실행하고 구체적인 값을 반환
+tf.__version__ 
+
+Gradient descent 구현
+tf.set_random_seed(0)  # for reproducibility #그래프 레벨의 난수 시드를 다시 수행해도 재연될수 있도록 특정한값 초기화 
+In [31]:          
+x_data = [1., 2., 3., 4.]
+y_data = [1., 3., 5., 7.]
+
+W = tf.Variable(tf.random_normal([1], -100., 100.)) #정규분포를 따르는 random number 1을 tf.Variable에 할당하는 값을 w로 정의 
+
+for step in range(300): # 300회 수행 
+    hypothesis =  W * X  # W * X의 가설 함수 
+    cost = tf.reduce_mean(tf.square(hypothesis - Y)) #변경된 hypothesis가 mean에도 영향을 준다
+
+    alpha = 0.01
+    gradient = tf.reduce_mean(tf.multiply(tf.multiply(W, X) - Y, X))
+    descent = W - tf.multiply(alpha, gradient)
+    W.assign(descent)
+    
+    # 10번에 한번씩 값 확인
+    if step % 10 == 0:
+        print('{:5} | {:10.4f} | {:10.6f}'.format(
+            step, cost.numpy(), W.numpy()[0]))
